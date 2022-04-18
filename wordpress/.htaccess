@@ -1,9 +1,18 @@
 # BEGIN WordPress
 
+#Включение модуля rewrite для хоста в текущей папке и подпапках
 RewriteEngine On
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+#Включение заголовка HTTP_AUTHORIZATION в случае работы сервера на CGI, можно удалить.
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}] 
+
+#Путь от корня сайта до .htaccess
 RewriteBase /
+
+#Если идет обращение по пути \index.php не выполнять преобразования, оставить как есть
 RewriteRule ^index\.php$ - [L]
+
+#Если запрос не является файлом (!-f) или директорией (!-d), то редиректить на index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.php [L]

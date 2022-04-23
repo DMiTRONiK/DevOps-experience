@@ -1,0 +1,34 @@
+version: '3.7'
+services:
+  db:  	#Сервис базы
+    image: mysql:8.0 	#Выбираем готовый образ mysql
+    command: --default-authentication-plugin=mysql_native_password 	#Переопределяем старндартное значение
+    container_name: db	#Имя контейнера
+    #restart: unless-stopped 	#Политика перезапуска - пока не остановлен
+    env_file: .env 	#Использовать переменные из файла
+    environment: 	#Дополнительные переменные, не чувствительные
+      - MYSQL_DATABASE=wordpress
+    volumes:
+      - db_data:/var/lib/mysql
+
+  wordpress: #Сервис приложения
+    depends_on:
+      - db
+    container_name: wp-docker-test 	#Задаем имя контейнера
+    build: .	#собираем локальный образ
+    #restart: unless-stopped 	#Политика перезапуска - пока не остановлен
+    ports: 	#Переадресация портов с хоста в контейнер
+      - "80:80"
+    env_file: .env
+    environment: #Переменные передающиеся на вход контейнера
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: $MYSQL_USER
+      WORDPRESS_DB_PASSWORD: $MYSQL_PASSWORD
+      WORDPRESS_DB_NAME: wordpress
+    volumes: #Общий том между контейнером и хостом
+      - wordpress:/var/www/html
+    
+volumes:
+  db_data: 
+  wordpress:
+

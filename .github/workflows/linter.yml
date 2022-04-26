@@ -24,7 +24,7 @@ jobs:
         script: |
           const output = `
           #### Hadolint: \`${{ steps.hadolint.outcome }}\`
-    	  \`\`\`
+    	    \`\`\`
           ${process.env.HADOLINT_RESULTS}
           \`\`\`
           `;

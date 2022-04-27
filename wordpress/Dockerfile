@@ -31,7 +31,7 @@ RUN set -ex; \
 		mysqli \
 		zip \
 	; \
-	apt-get clean; \
+	rm -rf /var/lib/apt/lists/*; \
 	pecl install imagick-3.6.0; \
 	docker-php-ext-enable imagick; \
 	rm -r /tmp/pear; \

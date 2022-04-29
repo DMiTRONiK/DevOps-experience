@@ -31,7 +31,7 @@ RUN set -ex; \
 		mysqli \
 		zip \
 	; \
-	apt-get clean; \
+	rm -rf /var/lib/apt/lists/*; \
 	pecl install imagick-3.6.0; \
 	docker-php-ext-enable imagick; \
 	rm -r /tmp/pear; \
@@ -44,7 +44,8 @@ RUN set -eux; \
 RUN set -eux; \
 	version='5.9.3'; \
 	\
-	curl -L "https://wordpress.org/wordpress-$version.tar.gz" | tar -xz -C /usr/src/; \
+	curl -o wordpress.tar.gz -fL "https://wordpress.org/wordpress-$version.tar.gz"; \
+	tar -xzf wordpress.tar.gz -C /usr/src/; \
 	chown -R www-data:www-data /usr/src/wordpress; \
 	mkdir wp-content; \
 	for dir in /usr/src/wordpress/wp-content/*/ cache; do \

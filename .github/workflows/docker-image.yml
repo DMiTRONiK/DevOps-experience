@@ -42,9 +42,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           
             #Now we have got the access of EC2 and we will start the deploy .
-            cd /home/ubuntu/App &&
+            cd /home/ubuntu/App/DevOps-experience/wordpress &&
             docker compose -f compose-production.yml down &&
-            curl -o compose-production.yml -fL https://raw.githubusercontent.com/DMiTRONiK/DevOps-experience/main/wordpress/compose-production.yml &&
+            git fetch origin &&
+            git reset --hard origin/main
             docker compose -f compose-production.yml up -d --build
           '
 

@@ -5,9 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -26,4 +24,34 @@ jobs:
           context: ./wordpress/
           push: true
           tags: dmitronik/wordpress:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy in EC2
+        env:
+          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
+          HOSTNAME : ${{ secrets.EC2_PROD_HOSTNAME  }}
+          USER_NAME : ${{ secrets.EC2_PROD_USER_NAME  }}
+
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           
+            #Now we have got the access of EC2 and we will start the deploy .
+            cd /home/ubuntu/App/DevOps-experience/wordpress &&
+            if [ -s compose-production.yml ] ; then
+              docker compose -f compose-production.yml down
+            else
+              echo >&2 "compose-production.yml not found in $PWD"
+            fi
+            git fetch origin &&
+            git reset --hard origin/main
+            docker compose -f compose-production.yml up -d --build
+          '
+
+
+

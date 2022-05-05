@@ -20,4 +20,7 @@ jobs:
       uses: overtrue/phplint@8.1
       with:
         path: .
-        options: --exclude=*.log
+        options: 
+          --exclude=*.log
+          --extensions=php
+

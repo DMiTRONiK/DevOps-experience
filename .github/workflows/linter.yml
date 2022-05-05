@@ -3,10 +3,12 @@ name: Hadolint linter
 on:
   push:
     branches-ignore: [ main ]
+  pull_request: 
+    branches-ignore: [ main ]
 
 jobs:
 
-  linter:
+  docker_linter:
 
     runs-on: ubuntu-latest
 
@@ -38,4 +40,16 @@ jobs:
             body: output
           })
 
+  phplint:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Checking PHP syntax error
+      uses: overtrue/phplint@8.1
+      with:
+        path: .
+        options:
+          --extensions=php
 

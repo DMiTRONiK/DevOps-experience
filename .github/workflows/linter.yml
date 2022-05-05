@@ -1,4 +1,4 @@
-name: Hadolint linter
+name: TESTING
 
 on:
   push:

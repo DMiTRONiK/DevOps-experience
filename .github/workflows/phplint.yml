@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  lint:
 
     runs-on: ubuntu-latest
 
@@ -19,5 +19,5 @@ jobs:
     - name: Checking PHP syntax error
       uses: overtrue/phplint@8.1
       with:
-        path: /wordpress/
+        path: .
         options: --exclude=*.log

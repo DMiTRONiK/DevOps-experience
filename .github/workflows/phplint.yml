@@ -2,15 +2,13 @@ name: PHP Lint
 
 on:
   push:
-    branches: [ testing ]
   pull_request:
-    branches: [ testing ]
 
 permissions:
   contents: read
 
 jobs:
-  lint:
+  phplint:
 
     runs-on: ubuntu-latest
 
@@ -21,6 +19,5 @@ jobs:
       with:
         path: .
         options: 
-          --exclude=*.log
           --extensions=php
 

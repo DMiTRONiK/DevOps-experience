@@ -1,0 +1,23 @@
+name: PHP Lint
+
+on:
+  push:
+    branches: [ testing ]
+  pull_request:
+    branches: [ testing ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Checking PHP syntax error
+      uses: overtrue/phplint@8.1
+      with:
+        path: /wordpress/
+        options: --exclude=*.log

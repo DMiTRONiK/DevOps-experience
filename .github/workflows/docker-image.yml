@@ -24,11 +24,11 @@ jobs:
 
     - name: Build and export to Docker
       uses: docker/build-push-action@v2
-        with:
-          context: ./wordpress/
-          load: true
-          tags: ${{ env.TEST_TAG }}
-		  
+      with:
+        context: ./wordpress/
+        load: true
+        tags: ${{ env.TEST_TAG }}
+		
     - name: Test
       run: docker run --rm ${{ env.TEST_TAG }}
           

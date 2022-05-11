@@ -69,7 +69,7 @@ jobs:
       - name: Test url
         env:
           URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
-        run: ./checkurl.sh ${URL}
+        run: sleep 50 && ./checkurl.sh ${URL}
 
   deploy_to_prod:
     needs: tests

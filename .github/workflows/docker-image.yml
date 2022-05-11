@@ -34,7 +34,7 @@ jobs:
         run: |
           cd ./wordpress/ &&
           docker compose -f compose-production.yml up -d --build &&
-          sleep 50 &&
+          sleep 60 &&
           ../checkurl.sh 
 
   deploy:

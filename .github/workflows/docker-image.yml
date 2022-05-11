@@ -30,16 +30,50 @@ jobs:
           push: true
           tags: dmitronik/wordpress:latest
 
-      - name: Test
-        run: |
-          cd ./wordpress/ &&
-          docker compose -f compose-production.yml up -d --build &&
-          sleep 60 &&
-          ../checkurl.sh 
-
-  deploy:
+  deploy_to_stage:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+ 
+      - name: Deploy in STAGE
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_STAGE_KEY  }}
+          HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+          USER_NAME : ${{ secrets.EC2_STAGE_USER_NAME  }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          
+            #Now we have got the access of EC2 and we will start the deploy .
+            cd /home/ubuntu/DevOps-experience/wordpress &&
+            sh -c "
+              if [ -s compose-production.yml ]; then
+                docker compose -f compose-production.yml down
+              fi
+            "
+            git fetch origin &&
+            git reset --hard origin/main
+            docker compose -f compose-production.yml up -d --build
+            '
+            
+  tests:
+    needs: deploy_to_stage
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Test url
+        env:
+          URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+        run: ./checkurl.sh ${URL}
+
+  deploy_to_prod:
+    needs: tests
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3

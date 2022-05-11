@@ -1,5 +1,5 @@
 #!/bin/bash
-code=$(curl -Is -o /dev/null -w "%{http_code}\n" --connect-timeout 5  'http://localhost:80/')
+code=$(curl -Is -o /dev/null -w "%{http_code}\n" --connect-timeout 5  http://$1:80/)
 
 echo "response code:$code"
 if [ "$code" == "200" ] ;

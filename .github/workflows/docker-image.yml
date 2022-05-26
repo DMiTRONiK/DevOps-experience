@@ -1,48 +1,50 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ main ]
+  pull_request: 
+    branches: 
+      - main
 
 jobs:
+
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
-    - name: Build and push
-      uses: docker/build-push-action@v2
-      with:
+
+      - name: Build and push
+        uses: docker/build-push-action@v2.10.0
+        with:
           context: ./wordpress/
           push: true
           tags: dmitronik/wordpress:latest
 
-  deploy:
+  deploy_to_stage:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Deploy in EC2
+      - uses: actions/checkout@v3
+ 
+      - name: Deploy in STAGE
         env:
-          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY  }}
-          HOSTNAME : ${{ secrets.EC2_PROD_HOSTNAME  }}
-          USER_NAME : ${{ secrets.EC2_PROD_USER_NAME  }}
-
+          PRIVATE_KEY: ${{ secrets.EC2_STAGE_KEY  }}
+          HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+          USER_NAME : ${{ secrets.EC2_STAGE_USER_NAME  }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           
             #Now we have got the access of EC2 and we will start the deploy .
-            cd /home/ubuntu/App/DevOps-experience/wordpress &&
+            cd /home/ubuntu/DevOps-experience/wordpress &&
             sh -c "
               if [ -s compose-production.yml ]; then
                 docker compose -f compose-production.yml down
@@ -51,7 +53,18 @@ jobs:
             git fetch origin &&
             git reset --hard origin/main
             docker compose -f compose-production.yml up -d --build
-          '
+            '
+            
+  tests:
+    needs: deploy_to_stage
+    runs-on: ubuntu-20.04
 
-
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Test url
+        env:
+          URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+        run: ./checkurl.sh ${URL}
 

@@ -1,3 +1,13 @@
+terraform {
+  cloud {
+    organization = "dmitron"
+
+    workspaces {
+      name = "gh-actions-demo"
+    }
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -18,21 +28,11 @@ resource "aws_security_group" "my_web_server" {
   name        = "WebServer_security_group"
   description = "Allow http port"
   ingress {
-    description = "http from all"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  /*
-  ingress {
-    description      = "https from all"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
-*/
   egress {
     from_port        = 0
     to_port          = 0
@@ -43,4 +43,8 @@ resource "aws_security_group" "my_web_server" {
   tags = {
     Name = "allow_out"
   }
+}
+
+output "web-address" {
+  value = "${aws_instance.web.public_dns}:80"
 }

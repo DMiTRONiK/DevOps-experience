@@ -46,5 +46,6 @@ resource "aws_security_group" "my_web_server" {
 }
 
 output "web-address" {
-  value = "${aws_instance.web.public_dns}:80"
+  value = "${aws_instance.tf_stage.public_dns}:80"
 }
+

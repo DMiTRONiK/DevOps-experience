@@ -65,7 +65,7 @@ jobs:
         run: terraform apply -auto-approve -input=false
 
       - name: 'Use Terraform Output'
-        run: echo ${{ steps.terraform.outputs.instance_public_ip  }}
+        run: echo ${{ steps.apply.outputs.instance_public_ip }}
 
       - name: Call terraform output
         run: |

@@ -28,7 +28,6 @@ jobs:
           tags: dmitronik/wordpress:latest
 
   terraform:
-    needs: build
     name: "Terraform"
     runs-on: ubuntu-20.04
     defaults:
@@ -65,12 +64,12 @@ jobs:
         id: apply
         run: terraform apply -auto-approve -input=false
 
-     - name: Use Terraform Output
-       run: echo ${{ steps.terraform.outputs.tf_actions_output }}
+      - name: Use Terraform Output
+        run: echo ${{ steps.terraform.outputs.tf_actions_output }}
 
-     - name: Call terraform output
-       run: output=$(terraform output instance_public_ip)
-       run: echo $output
+      - name: Call terraform output
+        run: output=$(terraform output instance_public_ip)
+        run: echo $output
 
   deploy_to_stage:
     needs: terraform

@@ -81,13 +81,12 @@ jobs:
       - name: Deploy in STAGE
         env:
           PRIVATE_KEY: ${{ secrets.EC2_STAGE_KEY  }}
-          #HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME  }}
-          HOSTNAME: ${{ needs.terraform.outputs.out_instance_ip }}
+          HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME }}
           USER_NAME: ${{ secrets.EC2_STAGE_USER_NAME  }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          echo ${HOSTNAME}
-          #ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          echo  ${{ needs.terraform.outputs.out_instance_ip }}
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           
             #Now we have got the access of EC2 and we will start the deploy .
             cd /home/ubuntu/DevOps-experience/wordpress &&

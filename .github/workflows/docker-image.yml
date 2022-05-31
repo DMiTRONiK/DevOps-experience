@@ -69,7 +69,7 @@ jobs:
 
       - name: Call terraform output
         id: out_ip
-        run: echo "::set-otput name=ip::$(terraform output instance_public_ip)"
+        run: echo "::set-otput name=ip::$(terraform output instance_public_ip | sed 's/\"//g')"
 
   deploy_to_stage:
     needs: terraform

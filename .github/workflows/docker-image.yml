@@ -72,7 +72,6 @@ jobs:
         run: |
           host=$(terraform output instance_public_ip)
           echo "::set-output name=public_ip::$host"
-          echo ${{steps.out_ip.outputs.public_ip}}
 
   deploy_to_stage:
     needs: terraform
@@ -84,11 +83,12 @@ jobs:
       - name: Deploy in STAGE
         env:
           PRIVATE_KEY: ${{ secrets.EC2_STAGE_KEY  }}
-          HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME }}
+          #HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME }}
+          HOSTNAME: ${{ needs.terraform.outputs.public_ip }}
           USER_NAME: ${{ secrets.EC2_STAGE_USER_NAME  }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          echo  ${{ needs.terraform.outputs.public_ip }}
+          echo  ${HOSTNAME}
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           
             #Now we have got the access of EC2 and we will start the deploy .
@@ -113,6 +113,7 @@ jobs:
       
       - name: Test url
         env:
-          URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+          #URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+          URL : ${{ needs.terraform.outputs.public_ip }}
         run: ./checkurl.sh ${URL}
 

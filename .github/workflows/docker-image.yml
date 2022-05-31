@@ -71,7 +71,7 @@ jobs:
         id: out_ip
         run: |
           host=$(terraform output instance_public_ip)
-          echo "::set-otput name=public_ip::$host"
+          echo "::set-otput name=public_ip::'$host'"
 
   deploy_to_stage:
     needs: terraform

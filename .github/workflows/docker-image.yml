@@ -69,9 +69,8 @@ jobs:
        run: echo ${{ steps.terraform.outputs.tf_actions_output }}
 
      - name: Call terraform output
-       run: |
-         output=$(terraform output instance_public_ip)
-         echo $output
+       run: output=$(terraform output instance_public_ip)
+       run: echo $output
 
   deploy_to_stage:
     needs: terraform

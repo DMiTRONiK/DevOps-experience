@@ -28,8 +28,11 @@ jobs:
           tags: dmitronik/wordpress:latest
 
   terraform:
+    needs: build
     name: "Terraform"
     runs-on: ubuntu-20.04
+    outputs:
+      out_instance_ip: ${{ steps.out_ip.outputs.ip }}
     defaults:
       run:
         working-directory: "./terraform"
@@ -64,13 +67,9 @@ jobs:
         id: apply
         run: terraform apply -auto-approve -input=false
 
-      - name: 'Use Terraform Output'
-        run: echo ${{ steps.apply.outputs.instance_public_ip }}
-
       - name: Call terraform output
-        run: |
-          instance_ip=$(terraform output instance_public_ip)
-          echo $instance_ip
+        id: out_ip
+        run: echo "::set-otput name=ip::$(terraform output instance_public_ip)"
 
   deploy_to_stage:
     needs: terraform
@@ -82,11 +81,13 @@ jobs:
       - name: Deploy in STAGE
         env:
           PRIVATE_KEY: ${{ secrets.EC2_STAGE_KEY  }}
-          HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME  }}
-          USER_NAME : ${{ secrets.EC2_STAGE_USER_NAME  }}
+          #HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+          HOSTNAME: ${{ needs.terraform.outputs.out_instance_ip }}
+          USER_NAME: ${{ secrets.EC2_STAGE_USER_NAME  }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          echo ${HOSTNAME}
+          #ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
           
             #Now we have got the access of EC2 and we will start the deploy .
             cd /home/ubuntu/DevOps-experience/wordpress &&

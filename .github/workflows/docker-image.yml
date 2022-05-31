@@ -64,13 +64,13 @@ jobs:
         id: apply
         run: terraform apply -auto-approve -input=false
 
-      - name: Use Terraform Output
-        run: echo ${{ steps.terraform.outputs.tf_actions_output }}
+      - name: 'Use Terraform Output'
+        run: echo ${{ steps.terraform.outputs.instance_public_ip  }}
 
       - name: Call terraform output
         run: |
-          output=$(terraform output instance_public_ip)
-          echo $output
+          instance_ip=$(terraform output instance_public_ip)
+          echo $instance_ip
 
   deploy_to_stage:
     needs: terraform

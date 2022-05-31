@@ -70,7 +70,7 @@ jobs:
       - name: Call terraform output
         id: out_ip
         run: |
-          host=(terraform output public_ip)
+          host=$(terraform output instance_public_ip)
           echo "::set-otput name=public_ip::$host"
 
   deploy_to_stage:

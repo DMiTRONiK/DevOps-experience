@@ -42,6 +42,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
 
       - name: Terraform Format
         id: fmt
@@ -63,6 +64,14 @@ jobs:
       - name: Terraform Apply
         id: apply
         run: terraform apply -auto-approve -input=false
+
+     - name: Use Terraform Output
+       run: echo ${{ steps.terraform.outputs.tf_actions_output }}
+
+     - name: Call terraform output
+       run: |
+         output=$(terraform output instance_public_ip)
+         echo $output
 
   deploy_to_stage:
     needs: terraform

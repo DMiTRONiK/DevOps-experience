@@ -45,7 +45,7 @@ resource "aws_security_group" "my_web_server" {
   }
 }
 
-output "web-address" {
-  value = "${aws_instance.tf_stage.public_dns}:80"
+output "instance_public_ip" {
+  value = aws_instance.tf_stage.public_ip
 }
 

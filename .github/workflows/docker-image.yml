@@ -69,7 +69,7 @@ jobs:
 
       - name: Call terraform output
         run: output=$(terraform output instance_public_ip)
-        run: echo $output
+        run: echo "$output"
 
   deploy_to_stage:
     needs: terraform

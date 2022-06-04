@@ -12,7 +12,7 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_ami" "latest_ubuntu-20.04" {
+data "aws_ami" "latest_ubuntu-20_04" {
   owners      = ["099720109477"]
   most_recent = true
   filter {
@@ -22,7 +22,7 @@ data "aws_ami" "latest_ubuntu-20.04" {
 }
 
 resource "aws_instance" "tf_stage" {
-  ami                    = data.aws_ami.latest_ubuntu-20.04.id
+  ami                    = data.aws_ami.latest_ubuntu-20_04.id
   instance_type          = var.instance_type
   key_name               = aws_key_pair.tf_stage.key_name
   vpc_security_group_ids = [aws_security_group.my_web_server.id]

@@ -92,12 +92,12 @@ jobs:
           #    uname -a
           #'
           set -eu
-          mkdir "~/.ssh"
-          echo "$PRIVATE_KEY" > "~/.ssh/key"
-          chmod 600 "~/.ssh/key"
-          rsync -e "ssh -i ~/.ssh/key -o StrictHostKeyChecking=no" \
+          mkdir "$HOME/.ssh"
+          echo "$PRIVATE_KEY" > "$HOME/.ssh/key"
+          chmod 600 "$HOME/.ssh/key"
+          rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
             --archive --compress --delete ./wordpress/ ${USER_NAME}@${HOSTNAME}:~
-          ssh -i ~/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} \
+          ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} \
             ' docker compose -f compose-production.yml up -d --build '
             
   tests:

@@ -86,11 +86,16 @@ jobs:
           HOSTNAME: ${{ needs.terraform.outputs.public_ip }}
           USER_NAME: ${{ secrets.EC2_STAGE_USER_NAME  }}
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          #echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           echo  ${HOSTNAME}
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            uname -a
-            '
+          #ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
+          #    uname -a
+          #'
+          set -eu
+          mkdir "$HOME/.ssh"
+          echo "$PRIVATE_KEY" > "$HOME/.ssh/key"
+          chmod 600 "$HOME/.ssh/key"
+          cd wordpress && rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . ${USER_NAME}@${HOSTNAME}
             
   tests:
     needs: deploy_to_stage

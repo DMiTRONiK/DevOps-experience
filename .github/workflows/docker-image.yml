@@ -125,6 +125,7 @@ jobs:
 
       - name: Terraform destroy
         run: terraform destroy
+        working-directory: ./terraform
 
       - name: Test status
         if: steps.testurl.outcome == 'failure'

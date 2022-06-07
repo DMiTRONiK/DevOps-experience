@@ -7,7 +7,7 @@ c=0
 while ((c++ < 5 )); do
   code=$(curl -Is -o /dev/null -w "%{http_code}\n" --connect-timeout 5  http://$1:80/)
   echo "$1 - response code:$code"
-  if [ "$code" == "200" ]; #|| "$code" == "302" ];
+  if [ "$code" == "200" || "$code" == "302" ];
   then
     echo "success"
     STATUS=0

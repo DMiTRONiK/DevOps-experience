@@ -100,7 +100,9 @@ jobs:
             'cd ~/wordpress && docker compose -f compose-production.yml up -d --build '
             
   tests:
-    needs: deploy_to_stage
+    needs:
+      - terraform
+      - deploy_to_stage
     runs-on: ubuntu-20.04
 
     steps:
@@ -110,6 +112,6 @@ jobs:
       - name: Test url
         env:
           #URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
-          URL : ${{ needs.terraform.outputs.public_ip }}
+          URL: ${{ needs.terraform.outputs.public_ip }}
         run: ./checkurl.sh ${URL}
 

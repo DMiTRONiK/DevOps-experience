@@ -123,6 +123,10 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
           terraform_wrapper: false
 
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
       - name: Terraform destroy
         run: terraform destroy
         working-directory: ./terraform

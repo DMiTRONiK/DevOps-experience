@@ -128,7 +128,7 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform destroy
-        run: terraform destroy
+        run: terraform destroy -auto-approve -input=false
         working-directory: ./terraform
 
       - name: Test status

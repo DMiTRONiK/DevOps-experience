@@ -110,8 +110,22 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Test url
+        id: testurl
         env:
           #URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
           URL: ${{ needs.terraform.outputs.public_ip }}
         run: ./checkurl.sh ${URL}
+        continue-on-error: true
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - name: Terraform destroy
+        run: terraform destroy
+
+      - name: Test status
+        if: steps.testurl.outcome == 'failure'
+        run: exit 1

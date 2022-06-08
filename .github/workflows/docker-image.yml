@@ -96,8 +96,21 @@ jobs:
           chmod 600 "$HOME/.ssh/key"
           rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
             --archive --compress --delete ./wordpress/ ${USER_NAME}@${HOSTNAME}:~/wordpress
-          ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} \
-            'cd ~/wordpress && docker compose -f compose-production.yml up -d --build '
+          ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} ' \
+            sh -c "
+              while true; do
+                if hash docker 2>/dev/null; then
+                  echo "Docker - found"
+                  cd ~/wordpress && docker compose -f compose-production.yml up -d --build
+                  break
+                else
+                  echo "------"
+                  echo "Docker not found - sleep 10s"
+                  sleep 10;
+                fi
+              done
+            " 
+          '
             
   tests:
     needs:

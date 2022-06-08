@@ -98,8 +98,9 @@ jobs:
             --archive --compress --delete ./wordpress/ ${USER_NAME}@${HOSTNAME}:~/wordpress
           ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} \
             'bash -s' << 'ENDSSH' 
-              с=0
-              while ((c++ < 10 )); do
+              
+              while : 
+              do
                 if hash docker compose 2>/dev/null; then
                   echo Docker compose - found
                   sleep 5;

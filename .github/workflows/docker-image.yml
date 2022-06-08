@@ -102,7 +102,7 @@ jobs:
                 if hash docker compose 2>/dev/null; then
                   echo Docker compose - found
                   sleep 10;
-                  cd ~/wordpress && docker compose -f compose-production.yml up -d --build
+                  cd ~/wordpress && sudo docker compose -f compose-production.yml up -d --build
                   break
                 else
                   echo ------

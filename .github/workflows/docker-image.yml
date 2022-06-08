@@ -100,12 +100,12 @@ jobs:
             sh -c "
               while true; do
                 if hash docker 2>/dev/null; then
-                  echo \"Docker - found\"
+                  echo Docker - found
                   cd ~/wordpress && docker compose -f compose-production.yml up -d --build
                   break
                 else
-                  echo \"------\"
-                  echo \"Docker not found - sleep 10s\"
+                  echo ------
+                  echo Docker not found - sleep 10s
                   sleep 10;
                 fi
               done

@@ -87,9 +87,6 @@ jobs:
           USER_NAME: ${{ secrets.EC2_STAGE_USER_NAME  }}
         run: |
           echo  ${HOSTNAME}
-          #ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          #    uname -a
-          #'
           set -eu
           mkdir "$HOME/.ssh"
           echo "$PRIVATE_KEY" > "$HOME/.ssh/key"
@@ -114,7 +111,7 @@ jobs:
                 fi
               done
               cd ~/wordpress
-              sudo docker compose -f compose-production.yml up -d --build
+              sudo docker compose -f compose-production.yml up -d
               exit $STATUS
           ENDSSH
             

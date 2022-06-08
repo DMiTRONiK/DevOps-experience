@@ -99,13 +99,14 @@ jobs:
           ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} '
             sh -c "
               while true; do
-                if hash docker 2>/dev/null; then
-                  echo Docker - found
+                if hash docker compose 2>/dev/null; then
+                  echo Docker compose - found
+                  sleep 10;
                   cd ~/wordpress && docker compose -f compose-production.yml up -d --build
                   break
                 else
                   echo ------
-                  echo Docker not found - sleep 10s
+                  echo Docker compose not found - sleep 10s
                   sleep 10;
                 fi
               done

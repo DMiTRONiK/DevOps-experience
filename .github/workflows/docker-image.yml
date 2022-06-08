@@ -96,8 +96,8 @@ jobs:
           chmod 600 "$HOME/.ssh/key"
           rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
             --archive --compress --delete ./wordpress/ ${USER_NAME}@${HOSTNAME}:~/wordpress
-          ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} '
-            sh -c "
+          ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} \
+            'bash -s' << 'ENDSSH' 
               с=0
               while ((c++ < 10 )); do
                 if hash docker compose 2>/dev/null; then
@@ -115,8 +115,7 @@ jobs:
               cd ~/wordpress
               sudo docker compose -f compose-production.yml up -d --build
               exit $STATUS
-            "
-          '
+          ENDSSH
             
   tests:
     needs:

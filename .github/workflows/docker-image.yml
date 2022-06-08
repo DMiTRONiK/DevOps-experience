@@ -101,8 +101,7 @@ jobs:
               while true; do
                 if hash docker compose 2>/dev/null; then
                   echo Docker compose - found
-                  sleep 10;
-                  cd ~/wordpress && sudo docker compose -f compose-production.yml up -d --build
+                  sleep 5;
                   break
                 else
                   echo ------
@@ -110,6 +109,8 @@ jobs:
                   sleep 10;
                 fi
               done
+              cd ~/wordpress
+              sudo docker compose -f compose-production.yml up -d --build
             "
           '
             

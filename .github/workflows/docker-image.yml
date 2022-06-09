@@ -111,8 +111,8 @@ jobs:
                 fi
               done
               cd ~/wordpress
-              #sudo docker compose -f compose-production.yml up -d
-              sudo docker compose version
+              sudo docker compose -f compose-production.yml build
+              sudo docker compose -f compose-production.yml up -d
               exit $STATUS
           ENDSSH
             

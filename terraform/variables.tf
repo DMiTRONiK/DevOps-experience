@@ -7,12 +7,12 @@ variable "region" {
 variable "instance_type" {
   description = "Enter Instance Type"
   type        = string
-  default     = "t2.micro"
+  default     = "t3.micro"
 }
 
 variable "allow_ports" {
   description = "List of Ports to open for server"
-  type        = list
+  type        = list(any)
   default     = ["22", "80", "443"]
 }
 

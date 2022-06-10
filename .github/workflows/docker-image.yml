@@ -94,25 +94,24 @@ jobs:
           rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
             --archive --compress --delete ./wordpress/ ${USER_NAME}@${HOSTNAME}:~/wordpress
           ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} \
-            'cd ~/wordpress && docker compose -f compose-production.yml up -d --build '
-          #  'bash -s' << 'ENDSSH'
-          #    while :
-          #    do
-          #      if hash docker compose 2>/dev/null; then
-          #        echo Docker compose - found
-          #        sleep 5;
-          #        STATUS=0
-          #        break
-          #      else
-          #        echo ------
-          #        echo Docker compose not found - sleep 10s
-          #        sleep 10;
-          #      fi
-          #    done
-          #    cd ~/wordpress
-          #    sudo docker compose -f compose-production.yml up -d
-          #    exit $STATUS
-          #  ENDSSH
+            'bash -s' << 'ENDSSH'
+              while :
+              do
+                if hash docker compose 2>/dev/null; then
+                  echo Docker compose - found
+                  sleep 5;
+                  STATUS=0
+                  break
+                else
+                  echo ------
+                  echo Docker compose not found - sleep 10s
+                  sleep 10;
+                fi
+              done
+              cd ~/wordpress
+              sudo docker compose -f compose-production.yml up -d
+              exit $STATUS
+            ENDSSH
 
   tests:
     needs:

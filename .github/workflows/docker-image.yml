@@ -126,7 +126,6 @@ jobs:
       - name: Test url
         id: testurl
         env:
-          #URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
           URL: ${{ needs.terraform.outputs.public_ip }}
         run: ./checkurl.sh ${URL}
         continue-on-error: true
@@ -141,9 +140,9 @@ jobs:
         run: terraform init
         working-directory: ./terraform
 
-      #- name: Terraform destroy
-      #  run: terraform destroy -auto-approve -input=false
-      #  working-directory: ./terraform
+      - name: Terraform destroy
+        run: terraform destroy -auto-approve -input=false
+        working-directory: ./terraform
 
       - name: Test status
         if: steps.testurl.outcome == 'failure'

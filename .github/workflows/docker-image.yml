@@ -105,6 +105,7 @@ jobs:
                 else
                   echo ------
                   echo Docker compose not found - sleep 10s
+                  STATUS=1
                   sleep 10;
                 fi
               done

@@ -129,8 +129,16 @@ jobs:
         env:
           URL: ${{ needs.terraform.outputs.public_ip }}
         run: ./checkurl.sh ${URL}
-        continue-on-error: true
 
+  terraform_destroy:
+    if: ${{ always() }}
+    needs:
+      - terraform
+      - deploy_to_stage
+      - tests
+    runs-on: ubuntu-20.04
+
+    steps:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -144,7 +152,3 @@ jobs:
       - name: Terraform destroy
         run: terraform destroy -auto-approve -input=false
         working-directory: ./terraform
-
-      - name: Test status
-        if: steps.testurl.outcome == 'failure'
-        run: exit 1

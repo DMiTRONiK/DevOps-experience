@@ -114,9 +114,10 @@ jobs:
               exit $STATUS
             ENDSSH
 
-      - name: Failing step
-        id: demo
-        run: exit 1
+# Test
+#      - name: Failing step
+#        id: demo
+#        run: exit 1
 
   tests:
     needs:

@@ -113,10 +113,10 @@ jobs:
               sudo docker compose -f compose-production.yml up -d
               exit $STATUS
             ENDSSH
-            
-        - name: Failing step
-          id: demo
-          run: exit 1
+
+      - name: Failing step
+        id: demo
+        run: exit 1
 
   tests:
     needs:

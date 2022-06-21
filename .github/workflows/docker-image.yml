@@ -1,8 +1,8 @@
 name: Docker Image CI
 
 on:
-  pull_request: 
-    branches: 
+  pull_request:
+    branches:
       - main
 
 jobs:
@@ -27,44 +27,136 @@ jobs:
           push: true
           tags: dmitronik/wordpress:latest
 
-  deploy_to_stage:
+  terraform:
     needs: build
+    name: "Terraform"
+    runs-on: ubuntu-20.04
+    outputs:
+      public_ip: ${{ steps.out_ip.outputs.public_ip }}
+    defaults:
+      run:
+        working-directory: "./terraform"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: HashiCorp - Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+#      - name: Terraform Format
+#        id: fmt
+#        run: terraform fmt -check
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve -input=false
+
+      - name: Call terraform output
+        id: out_ip
+        run: |
+          host=$(terraform output -raw instance_public_ip)
+          echo "::set-output name=public_ip::$host"
+
+  deploy_to_stage:
+    needs: terraform
     runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
- 
+
       - name: Deploy in STAGE
         env:
           PRIVATE_KEY: ${{ secrets.EC2_STAGE_KEY  }}
-          HOSTNAME : ${{ secrets.EC2_STAGE_HOSTNAME  }}
-          USER_NAME : ${{ secrets.EC2_STAGE_USER_NAME  }}
+          HOSTNAME: ${{ needs.terraform.outputs.public_ip }}
+          USER_NAME: ${{ secrets.EC2_STAGE_USER_NAME  }}
         run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          
-            #Now we have got the access of EC2 and we will start the deploy .
-            cd /home/ubuntu/DevOps-experience/wordpress &&
-            sh -c "
-              if [ -s compose-production.yml ]; then
-                docker compose -f compose-production.yml down
-              fi
-            "
-            git fetch origin &&
-            git reset --hard origin/main
-            docker compose -f compose-production.yml up -d --build
-            '
-            
+          echo  ${HOSTNAME}
+          set -eu
+          mkdir "$HOME/.ssh"
+          echo "$PRIVATE_KEY" > "$HOME/.ssh/key"
+          chmod 600 "$HOME/.ssh/key"
+          rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" \
+            --archive --compress --delete ./wordpress/ ${USER_NAME}@${HOSTNAME}:~/wordpress
+          ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no ${USER_NAME}@${HOSTNAME} \
+            'bash -s' << 'ENDSSH'
+              while :
+              do
+                if hash docker compose 2>/dev/null; then
+                  echo Docker compose - found
+                  sleep 5;
+                  STATUS=0
+                  break
+                else
+                  echo ------
+                  echo Docker compose not found - sleep 10s
+                  STATUS=1
+                  sleep 10;
+                fi
+              done
+              cd ~/wordpress
+              sudo docker compose -f compose-production.yml up -d
+              exit $STATUS
+            ENDSSH
+
+# Test
+#      - name: Failing step
+#        id: demo
+#        run: exit 1
+
   tests:
-    needs: deploy_to_stage
+    needs:
+      - terraform
+      - deploy_to_stage
     runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
+
       - name: Test url
+        id: testurl
         env:
-          URL : ${{ secrets.EC2_STAGE_HOSTNAME  }}
+          URL: ${{ needs.terraform.outputs.public_ip }}
         run: ./checkurl.sh ${URL}
 
+  terraform_destroy:
+    if: ${{ always() }}
+    needs:
+      - terraform
+      - deploy_to_stage
+      - tests
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: Terraform destroy
+        run: terraform destroy -auto-approve -input=false
+        working-directory: ./terraform
